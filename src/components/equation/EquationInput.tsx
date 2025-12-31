@@ -5,6 +5,8 @@ import { Label } from "@/components/ui/label"
 import { Separator } from "@/components/ui/separator"
 import { AlertCircle } from "lucide-react"
 import { useEquationBalance } from "@/lib/hooks/useEquationBalance"
+import { PeriodicTable } from "@/components/chemistry/PeriodicTable"
+import { useRef } from "react"
 
 // Example equations to display
 const exampleEquations = [
@@ -20,6 +22,7 @@ const exampleEquations = [
 
 export function EquationInput() {
   const { equation, error, isBalancing, balance, setEquation, clearError } = useEquationBalance()
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -35,6 +38,28 @@ export function EquationInput() {
     clearError()
   }
 
+  const handleElementSelect = (symbol: string) => {
+    // Insert element at cursor position or append to end
+    if (textareaRef.current) {
+      const cursorPos = textareaRef.current.selectionStart
+      const textBefore = equation.substring(0, cursorPos)
+      const textAfter = equation.substring(cursorPos)
+      const newEquation = textBefore + symbol + textAfter
+      setEquation(newEquation)
+
+      // Set cursor after inserted element
+      setTimeout(() => {
+        if (textareaRef.current) {
+          const newCursorPos = cursorPos + symbol.length
+          textareaRef.current.setSelectionRange(newCursorPos, newCursorPos)
+          textareaRef.current.focus()
+        }
+      }, 0)
+    } else {
+      setEquation(equation + symbol)
+    }
+  }
+
   return (
     <Card className="transition-all hover:shadow-glow-sm">
       <CardHeader>
@@ -45,8 +70,12 @@ export function EquationInput() {
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="equation">Chemical Equation</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="equation">Chemical Equation</Label>
+            <PeriodicTable onElementSelect={handleElementSelect} />
+          </div>
           <Textarea
+            ref={textareaRef}
             id="equation"
             value={equation}
             onChange={(e) => setEquation(e.target.value)}

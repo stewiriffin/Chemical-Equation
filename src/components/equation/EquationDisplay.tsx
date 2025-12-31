@@ -9,6 +9,8 @@ import { useSuccessAnimation } from "@/components/visualization/SuccessAnimation
 import { MolecularWeightDisplay } from "@/components/chemistry/MolecularWeightDisplay"
 import { ReactionInfo } from "@/components/chemistry/ReactionInfo"
 import { CopyButton } from "@/components/shared/CopyButton"
+import { ExportButton } from "@/components/shared/ExportButton"
+import { ShareButton } from "@/components/shared/ShareButton"
 
 export function EquationDisplay() {
   const { result } = useEquationBalance()
@@ -41,17 +43,25 @@ export function EquationDisplay() {
 
   return (
     <div className="space-y-6">
-      {/* Balanced Equation Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3 }}
-      >
-        <Card className="transition-all hover:shadow-glow-md hover:border-primary/50">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
-            <CardTitle>Balanced Equation</CardTitle>
-            <CopyButton text={result.balanced} label="Copy Equation" />
-          </CardHeader>
+      {/* Export Controls */}
+      <div className="flex items-center justify-end gap-2">
+        <ShareButton equation={result.balanced} />
+        <ExportButton result={result} />
+      </div>
+
+      {/* Container for export functionality */}
+      <div id="equation-export-container" className="space-y-6">
+        {/* Balanced Equation Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3 }}
+        >
+          <Card className="transition-all hover:shadow-glow-md hover:border-primary/50">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <CardTitle>Balanced Equation</CardTitle>
+              <CopyButton text={result.balanced} label="Copy Equation" />
+            </CardHeader>
           <CardContent className="space-y-4">
             <div>
               <p className="text-sm text-muted-foreground mb-2">Original:</p>
@@ -97,14 +107,15 @@ export function EquationDisplay() {
         </motion.div>
       </div>
 
-      {/* Step-by-Step Explanation Card */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.3, delay: 0.25 }}
-      >
-        <StepsExplanation steps={result.steps} />
-      </motion.div>
+        {/* Step-by-Step Explanation Card */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.3, delay: 0.25 }}
+        >
+          <StepsExplanation steps={result.steps} />
+        </motion.div>
+      </div>
     </div>
   )
 }

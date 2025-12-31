@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useReducer, ReactNode } from 'react'
+import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react'
 import { BalancedResult, EquationHistoryItem } from '@/types/chemistry'
+import { loadHistory, saveHistory } from '@/lib/utils/localStorage'
+import { getEquationFromURL } from '@/lib/utils/urlSharing'
 
 // State interface
 interface EquationState {
@@ -24,6 +26,8 @@ type EquationAction =
   | { type: 'CLEAR_ERROR' }
   | { type: 'ADD_TO_HISTORY'; payload: EquationHistoryItem }
   | { type: 'CLEAR_HISTORY' }
+  | { type: 'REMOVE_FROM_HISTORY'; payload: string }
+  | { type: 'LOAD_HISTORY'; payload: EquationHistoryItem[] }
   | { type: 'SET_TAB'; payload: EquationState['currentTab'] }
   | { type: 'TOGGLE_PERIODIC_TABLE' }
   | { type: 'TOGGLE_DARK_MODE' }
@@ -86,6 +90,16 @@ function equationReducer(state: EquationState, action: EquationAction): Equation
         ...state,
         history: [],
       }
+    case 'REMOVE_FROM_HISTORY':
+      return {
+        ...state,
+        history: state.history.filter(item => item.id !== action.payload),
+      }
+    case 'LOAD_HISTORY':
+      return {
+        ...state,
+        history: action.payload,
+      }
     case 'SET_TAB':
       return {
         ...state,
@@ -127,6 +141,28 @@ interface EquationProviderProps {
 
 export function EquationProvider({ children }: EquationProviderProps) {
   const [state, dispatch] = useReducer(equationReducer, initialState)
+
+  // Load from URL and localStorage on mount
+  useEffect(() => {
+    // First, check if there's an equation in the URL
+    const urlEquation = getEquationFromURL()
+    if (urlEquation) {
+      dispatch({ type: 'SET_EQUATION', payload: urlEquation })
+    }
+
+    // Then load history from localStorage
+    const savedHistory = loadHistory()
+    if (savedHistory.length > 0) {
+      dispatch({ type: 'LOAD_HISTORY', payload: savedHistory })
+    }
+  }, [])
+
+  // Save history to localStorage whenever it changes
+  useEffect(() => {
+    if (state.history.length > 0) {
+      saveHistory(state.history)
+    }
+  }, [state.history])
 
   return (
     <EquationContext.Provider value={{ state, dispatch }}>
