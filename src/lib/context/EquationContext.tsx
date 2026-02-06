@@ -2,12 +2,13 @@ import React, { createContext, useContext, useReducer, ReactNode, useEffect } fr
 import { BalancedResult, EquationHistoryItem } from '@/types/chemistry'
 import { loadHistory, saveHistory } from '@/lib/utils/localStorage'
 import { getEquationFromURL } from '@/lib/utils/urlSharing'
+import { ValidationError } from '@/lib/chemistry/validator'
 
 // State interface
 interface EquationState {
   currentEquation: string
   isValid: boolean
-  validationErrors: string[]
+  validationErrors: ValidationError[]
   balancedResult: BalancedResult | null
   isBalancing: boolean
   error: string | null
@@ -24,6 +25,8 @@ type EquationAction =
   | { type: 'SET_RESULT'; payload: BalancedResult }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'CLEAR_ERROR' }
+  | { type: 'SET_VALIDATION_ERRORS'; payload: ValidationError[] }
+  | { type: 'CLEAR_VALIDATION_ERRORS' }
   | { type: 'ADD_TO_HISTORY'; payload: EquationHistoryItem }
   | { type: 'CLEAR_HISTORY' }
   | { type: 'REMOVE_FROM_HISTORY'; payload: string }
@@ -79,6 +82,18 @@ function equationReducer(state: EquationState, action: EquationAction): Equation
       return {
         ...state,
         error: null,
+      }
+    case 'SET_VALIDATION_ERRORS':
+      return {
+        ...state,
+        validationErrors: action.payload,
+        isValid: action.payload.filter(e => e.type === 'error').length === 0,
+      }
+    case 'CLEAR_VALIDATION_ERRORS':
+      return {
+        ...state,
+        validationErrors: [],
+        isValid: true,
       }
     case 'ADD_TO_HISTORY':
       return {

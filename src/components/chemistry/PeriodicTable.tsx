@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Table2, X } from "lucide-react"
-import { ELEMENTS, getElement } from "@/data/periodicTableData"
+import { getElement } from "@/data/periodicTableData"
 import { getElementColor } from "@/constants/colors"
 import { motion } from "framer-motion"
 
@@ -137,20 +137,21 @@ export function PeriodicTable({ onElementSelect }: PeriodicTableProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Table2 className="h-4 w-4" />
-          Periodic Table
+        <Button variant="outline" size="sm" className="gap-1 h-8 text-xs sm:gap-2 sm:h-9 sm:text-sm">
+          <Table2 className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden xs:inline sm:inline">Periodic Table</span>
+          <span className="xs:hidden">Table</span>
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[95vw] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Interactive Periodic Table</DialogTitle>
-          <DialogDescription>
+      <DialogContent className="max-w-[98vw] max-h-[90vh] overflow-y-auto p-2 sm:p-4">
+        <DialogHeader className="pb-2">
+          <DialogTitle className="text-base sm:text-lg">Interactive Periodic Table</DialogTitle>
+          <DialogDescription className="text-xs">
             Click any element to insert it into your equation
           </DialogDescription>
         </DialogHeader>
 
-        <div className="py-4">
+        <div className="py-2 overflow-x-auto">
           {renderPeriodicTable()}
         </div>
 
@@ -195,22 +196,26 @@ export function PeriodicTable({ onElementSelect }: PeriodicTableProps) {
           </motion.div>
         )}
 
-        <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: '#1E90FF' }} />
-            <span>Nonmetal</span>
+        <div className="mt-2 sm:mt-4 grid grid-cols-2 sm:grid-cols-4 gap-1 sm:gap-2 text-xs">
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded flex-shrink-0" style={{ backgroundColor: '#1E90FF' }} />
+            <span className="hidden sm:inline">Nonmetal</span>
+            <span className="sm:hidden">Non-m</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: '#909090' }} />
-            <span>Metalloid</span>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded flex-shrink-0" style={{ backgroundColor: '#909090' }} />
+            <span className="hidden sm:inline">Metalloid</span>
+            <span className="sm:hidden">Met.</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: '#FFA500' }} />
-            <span>Metal</span>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded flex-shrink-0" style={{ backgroundColor: '#FFA500' }} />
+            <span className="hidden sm:inline">Metal</span>
+            <span className="sm:hidden">Metal</span>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded" style={{ backgroundColor: '#32CD32' }} />
-            <span>Noble Gas</span>
+          <div className="flex items-center gap-1">
+            <div className="w-3 h-3 rounded flex-shrink-0" style={{ backgroundColor: '#32CD32' }} />
+            <span className="hidden sm:inline">Noble Gas</span>
+            <span className="sm:hidden">Gas</span>
           </div>
         </div>
       </DialogContent>

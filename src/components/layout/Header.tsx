@@ -36,34 +36,36 @@ export function Header({ onShowShortcuts }: HeaderProps = {}) {
       transition={{ duration: 0.5 }}
       className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
     >
-      <div className="container max-w-7xl mx-auto flex h-16 items-center justify-between px-4">
+      <div className="container max-w-7xl mx-auto flex h-14 sm:h-16 items-center justify-between px-2 sm:px-4">
         {/* Logo and Title */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <motion.div
             initial={{ rotate: 0 }}
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           >
-            <Beaker className="h-8 w-8 text-primary" />
+            <Beaker className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0" />
           </motion.div>
-          <div>
-            <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-              Chemical Equation Balancer
+          <div className="min-w-0">
+            <h1 className="text-sm sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent truncate">
+              <span className="hidden xs:block">Chemical Equation Balancer</span>
+              <span className="xs:hidden">Equation Balancer</span>
             </h1>
-            <p className="text-xs text-muted-foreground">
-              Balance any chemical equation with AI
+            <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block truncate">
+              Balance any chemical equation
             </p>
           </div>
         </div>
 
         {/* Dark Mode Toggle and Shortcuts */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
           {onShowShortcuts && (
             <Button
               variant="ghost"
               size="icon"
               onClick={onShowShortcuts}
               title="Keyboard shortcuts (Ctrl+/)"
+              className="h-8 w-8 sm:h-9 sm:w-9"
             >
               <Keyboard className="h-4 w-4" />
             </Button>

@@ -38,46 +38,54 @@ export function EquationHistory() {
     return `${days}d ago`
   }
 
+  // Show fewer items on mobile by default
+  const defaultVisibleCount = 3
+
   if (state.history.length === 0) {
     return (
       <Card className="transition-all hover:shadow-glow-sm">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base">
             <History className="h-5 w-5" />
             History
           </CardTitle>
-          <CardDescription>
-            Your recently balanced equations will appear here
+          <CardDescription className="text-xs">
+            Your balanced equations will appear here
           </CardDescription>
         </CardHeader>
       </Card>
     )
   }
 
+  const visibleCount = expanded ? undefined : defaultVisibleCount
+
   return (
     <Card className="transition-all hover:shadow-glow-sm">
-      <CardHeader>
+      <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle className="flex items-center gap-2 text-base">
             <History className="h-5 w-5" />
-            History ({state.history.length})
+            <span className="hidden sm:inline">History</span>
+            <span className="sm:hidden">Hist</span>
+            <span className="text-xs text-muted-foreground">({state.history.length})</span>
           </CardTitle>
           <Button
             variant="ghost"
-            size="sm"
+            size="icon"
             onClick={handleClearAll}
-            className="text-destructive hover:text-destructive"
+            className="h-8 w-8 text-destructive hover:text-destructive"
+            title="Clear all history"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </div>
-        <CardDescription>
-          Click any equation to load it
+        <CardDescription className="text-xs">
+          Tap to load equation
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-2">
+      <CardContent className="space-y-2 pt-0">
         <AnimatePresence mode="popLayout">
-          {state.history.slice(0, expanded ? undefined : 5).map((item, index) => (
+          {state.history.slice(0, visibleCount).map((item, index) => (
             <motion.div
               key={item.id}
               initial={{ opacity: 0, x: -20 }}
@@ -87,19 +95,19 @@ export function EquationHistory() {
             >
               <Button
                 variant="outline"
-                className="w-full justify-start text-left h-auto py-3 px-3 group relative"
+                className="w-full justify-start text-left h-auto py-2 px-3 group relative"
                 onClick={() => handleHistoryClick(item.equation)}
               >
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                <div className="flex-1 min-w-0 pr-8">
+                  <div className="flex items-center gap-1 mb-0.5">
                     <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
                     <span className="text-xs text-muted-foreground">
                       {formatTimestamp(item.timestamp)}
                     </span>
                   </div>
-                  <p className="font-mono text-sm truncate">{item.equation}</p>
+                  <p className="font-mono text-xs truncate">{item.equation}</p>
                   {item.balanced && (
-                    <p className="font-mono text-xs text-muted-foreground truncate mt-1">
+                    <p className="font-mono text-xs text-muted-foreground truncate mt-0.5">
                       → {item.balanced}
                     </p>
                   )}
@@ -107,23 +115,24 @@ export function EquationHistory() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="opacity-0 group-hover:opacity-100 transition-opacity ml-2 flex-shrink-0"
+                  className="absolute right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity h-6 w-6"
                   onClick={(e) => handleRemoveItem(item.id, e)}
                 >
-                  <Trash2 className="h-4 w-4 text-destructive" />
+                  <Trash2 className="h-3 w-3 text-destructive" />
                 </Button>
               </Button>
             </motion.div>
           ))}
         </AnimatePresence>
 
-        {state.history.length > 5 && (
+        {state.history.length > defaultVisibleCount && (
           <Button
             variant="ghost"
-            className="w-full mt-2"
+            size="sm"
+            className="w-full mt-1 text-xs"
             onClick={() => setExpanded(!expanded)}
           >
-            {expanded ? 'Show Less' : `Show ${state.history.length - 5} More`}
+            {expanded ? 'Show Less' : `Show ${Math.min(state.history.length - defaultVisibleCount, 5 - defaultVisibleCount)} More`}
           </Button>
         )}
       </CardContent>

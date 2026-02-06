@@ -7,7 +7,7 @@ import { ParticleBackground } from "./visualization/ParticleBackground"
 import { Toaster } from "./ui/toaster"
 import { useKeyboardShortcuts } from "@/lib/hooks/useKeyboardShortcuts"
 import { useEquationContext } from "@/lib/context/EquationContext"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "./ui/dialog"
 import { Keyboard } from "lucide-react"
 
@@ -18,6 +18,17 @@ import { Keyboard } from "lucide-react"
 export default function EquationBalancer() {
   const { dispatch } = useEquationContext()
   const [showShortcuts, setShowShortcuts] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Detect mobile viewport
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Setup keyboard shortcuts
   useKeyboardShortcuts([
@@ -37,14 +48,15 @@ export default function EquationBalancer() {
 
   return (
     <>
-      <ParticleBackground />
+      {/* Hide particle background on mobile for performance */}
+      {!isMobile && <ParticleBackground />}
       <Header onShowShortcuts={() => setShowShortcuts(true)} />
 
       {/* Keyboard Shortcuts Help Dialog */}
       <Dialog open={showShortcuts} onOpenChange={setShowShortcuts}>
-        <DialogContent>
+        <DialogContent className="max-w-[90vw]">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
+            <DialogTitle className="flex items-center gap-2 text-lg">
               <Keyboard className="h-5 w-5" />
               Keyboard Shortcuts
             </DialogTitle>
@@ -52,8 +64,8 @@ export default function EquationBalancer() {
               Productivity tips to speed up your workflow
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-2 text-sm">
+          <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
               <div className="flex items-center gap-2">
                 <kbd className="px-2 py-1 bg-muted rounded border text-xs font-mono">Ctrl+Enter</kbd>
                 <span className="text-muted-foreground">Balance equation</span>
@@ -75,23 +87,27 @@ export default function EquationBalancer() {
         </DialogContent>
       </Dialog>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-8 px-4">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-4 sm:py-6 px-3 sm:px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="container max-w-7xl mx-auto"
         >
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
+          {/* Mobile: stacked layout | Desktop: side-by-side */}
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
             {/* Left Column - Input Section (40%) */}
             <motion.div
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-2 space-y-6"
+              className="lg:col-span-2 space-y-4 lg:space-y-6"
             >
               <EquationInput />
-              <EquationHistory />
+              {/* Hide history on very small screens, show on md+ */}
+              <div className="hidden sm:block">
+                <EquationHistory />
+              </div>
             </motion.div>
 
             {/* Right Column - Results Section (60%) */}
@@ -102,6 +118,16 @@ export default function EquationBalancer() {
               className="lg:col-span-3"
             >
               <EquationDisplay />
+            </motion.div>
+
+            {/* Mobile-only History Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="sm:hidden"
+            >
+              <EquationHistory />
             </motion.div>
           </div>
         </motion.div>

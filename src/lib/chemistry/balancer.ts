@@ -6,14 +6,35 @@ import { calculateMolecularWeight } from './molecularWeight'
 import { classifyReaction } from './reactionClassifier'
 
 /**
+ * Custom error class for equation balancing errors
+ */
+export class EquationBalanceError extends Error {
+  constructor(
+    message: string,
+    public code: string,
+    public suggestion?: string
+  ) {
+    super(message)
+    this.name = 'EquationBalanceError'
+  }
+}
+
+/**
  * Balance a chemical equation using matrix-based Gaussian elimination
  * Returns balanced equation with step-by-step explanation
  */
 export function balanceEquation(equation: string): BalancedResult {
   // Step 1: Validate string format
   const stringValidation = validateEquationString(equation)
-  if (!stringValidation.valid) {
-    throw new Error(stringValidation.errors.join('; '))
+  const errors = stringValidation.errors.filter(e => e.type === 'error')
+  
+  if (errors.length > 0) {
+    const firstError = errors[0]
+    throw new EquationBalanceError(
+      firstError.message,
+      firstError.code,
+      firstError.suggestion
+    )
   }
 
   // Step 2: Parse equation
@@ -21,12 +42,19 @@ export function balanceEquation(equation: string): BalancedResult {
 
   // Step 3: Validate parsed equation
   const validation = validateEquation(parsed)
-  if (!validation.valid) {
-    throw new Error(validation.errors.join('; '))
+  const validationErrors = validation.errors.filter(e => e.type === 'error')
+  
+  if (validationErrors.length > 0) {
+    const firstError = validationErrors[0]
+    throw new EquationBalanceError(
+      firstError.message,
+      firstError.code,
+      firstError.suggestion
+    )
   }
 
   // Step 4: Build atom matrix
-  const { matrix, elements, compounds } = buildAtomMatrix(parsed)
+  const { matrix, elements } = buildAtomMatrix(parsed)
 
   // Step 5: Solve matrix to find coefficients
   const coefficients = solveMatrix(matrix)
@@ -48,8 +76,7 @@ export function balanceEquation(equation: string): BalancedResult {
   const molecularWeights = [...parsed.reactants, ...parsed.products].map(compound => {
     try {
       return calculateMolecularWeight(compound.formula)
-    } catch (error) {
-      // If calculation fails, return a default
+    } catch {
       return {
         compound: compound.formula,
         weight: 0,
@@ -75,28 +102,21 @@ export function balanceEquation(equation: string): BalancedResult {
 
 /**
  * Build atom matrix from parsed equation
- * Rows = elements, Columns = compounds
- * Reactants are positive, products are negative
  */
 function buildAtomMatrix(parsed: ParsedEquation) {
   const elements = getUniqueElements(parsed)
   const compounds = [...parsed.reactants, ...parsed.products]
   const numReactants = parsed.reactants.length
 
-  // Create matrix: each row is an element, each column is a compound
   const matrix: number[][] = []
 
   elements.forEach(element => {
     const row: number[] = []
-
     compounds.forEach((compound, index) => {
       const elementCount = compound.elements.find(el => el.symbol === element)
       const count = elementCount ? elementCount.count : 0
-
-      // Reactants are positive, products are negative
       row.push(index < numReactants ? count : -count)
     })
-
     matrix.push(row)
   })
 
@@ -104,73 +124,58 @@ function buildAtomMatrix(parsed: ParsedEquation) {
 }
 
 /**
- * Solve matrix using Gaussian elimination to find null space
- * Returns coefficients for each compound
+ * Solve matrix using Gaussian elimination
  */
 function solveMatrix(matrix: number[][]): number[] {
   const m = math.matrix(matrix)
-  const [rows, cols] = m.size()
+  const [, cols] = m.size()
 
-  // If only one compound on each side, try simple balancing first
   if (cols === 2) {
     return [1, 1]
   }
 
   try {
-    // Find null space of the matrix
-    // This gives us the coefficients that satisfy the conservation of mass
-    const nullSpace = math.null(m)
-
-    if (nullSpace.length === 0 || nullSpace[0].length === 0) {
-      // If no null space, try using the last column as the solution
-      // This is a fallback for simple cases
+    // @ts-ignore - mathjs nullSpace
+    const nullSpaceResult = math.nullSpace ? math.nullSpace(m) : null
+    
+    if (!nullSpaceResult || nullSpaceResult.length === 0) {
       return Array(cols).fill(1)
     }
 
-    // Take the first null vector
-    const solution = nullSpace.map(row => row[0])
+    const solution = nullSpaceResult[0]
+    
+    if (!solution) {
+      return Array(cols).fill(1)
+    }
 
-    // Convert all negative values to positive
-    const allPositive = solution.map(val => Math.abs(val))
-
+    const allPositive = solution.map((val: number) => Math.abs(val))
     return allPositive
-  } catch (error) {
-    // Fallback: return all 1s if matrix solving fails
-    console.warn('Matrix solving failed, using fallback', error)
+  } catch {
+    console.warn('Matrix solving failed, using fallback')
     return Array(cols).fill(1)
   }
 }
 
 /**
  * Normalize coefficients to smallest positive integers
- * Handles fractional coefficients by finding LCM
  */
 function normalizeCoefficients(coefficients: number[]): number[] {
-  // Remove very small values (numerical errors)
   const cleaned = coefficients.map(c => Math.abs(c) < 1e-10 ? 0 : c)
-
-  // Find minimum non-zero value
   const nonZero = cleaned.filter(c => c > 0)
+  
   if (nonZero.length === 0) {
     return coefficients.map(() => 1)
   }
 
   const minVal = Math.min(...nonZero)
-
-  // Divide all by minimum to get relative ratios
   let normalized = cleaned.map(c => c / minVal)
 
-  // Convert to integers by multiplying to eliminate fractions
   const precision = 1000
   let multiplier = 1
 
-  // Try to find a multiplier that gives us integers
   for (let mult = 1; mult <= precision; mult++) {
     const scaled = normalized.map(n => n * mult)
-    const isAllIntegers = scaled.every(n =>
-      Math.abs(n - Math.round(n)) < 0.01
-    )
-
+    const isAllIntegers = scaled.every(n => Math.abs(n - Math.round(n)) < 0.01)
     if (isAllIntegers) {
       multiplier = mult
       break
@@ -179,25 +184,23 @@ function normalizeCoefficients(coefficients: number[]): number[] {
 
   normalized = normalized.map(n => Math.round(n * multiplier))
 
-  // Find GCD and divide to get smallest integers
   const gcd = findGCD(normalized.filter(n => n > 0))
   if (gcd > 1) {
     normalized = normalized.map(n => Math.round(n / gcd))
   }
 
-  // Ensure no coefficient is less than 1
   return normalized.map(n => Math.max(1, n))
 }
 
 /**
- * Find Greatest Common Divisor of array of numbers
+ * Find Greatest Common Divisor
  */
 function findGCD(numbers: number[]): number {
   function gcd2(a: number, b: number): number {
     return b === 0 ? a : gcd2(b, a % b)
   }
 
-  return numbers.reduce((acc, num) => gcd2(acc, Math.round(num)))
+  return numbers.reduce((acc, num) => gcd2(acc, Math.round(num)), numbers[0] || 1)
 }
 
 /**
@@ -247,7 +250,6 @@ function generateSteps(
 ): Step[] {
   const steps: Step[] = []
 
-  // Step 1: Count atoms on each side (original)
   const originalCounts: Record<string, { reactants: number; products: number }> = {}
   elements.forEach(element => {
     originalCounts[element] = {
@@ -265,7 +267,6 @@ function generateSteps(
     description: `Original equation atom counts:\n${countList}\n\nThe equation is not balanced because atom counts don't match.`
   })
 
-  // Step 2: Identify imbalanced elements
   const imbalanced = elements.filter(
     el => originalCounts[el].reactants !== originalCounts[el].products
   )
@@ -281,7 +282,6 @@ function generateSteps(
     })
   }
 
-  // Step 3: Build and solve matrix
   const matrixStr = matrix
     .map((row, i) => `${elements[i]}: [${row.join(', ')}]`)
     .join('\n')
@@ -293,7 +293,6 @@ function generateSteps(
     coefficients
   })
 
-  // Step 4: Verify balance
   const balancedCounts: Record<string, { reactants: number; products: number }> = {}
   elements.forEach(element => {
     balancedCounts[element] = {

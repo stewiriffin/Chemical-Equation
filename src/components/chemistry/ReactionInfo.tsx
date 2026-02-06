@@ -26,30 +26,31 @@ export function ReactionInfo({ original, reactionType }: ReactionInfoProps) {
   const formattedType = formatReactionType(reactionType)
 
   return (
-    <Card className="transition-all hover:shadow-glow-sm">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Info className="h-5 w-5" />
-          Reaction Information
+    <Card className="transition-all hover:shadow-glow-sm h-full">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
+          <Info className="h-4 w-4 sm:h-5 sm:w-5" />
+          <span className="hidden sm:inline">Reaction Information</span>
+          <span className="sm:hidden">Reaction</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3 pt-0">
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Reaction Type:</p>
-          <div className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium border ${badgeColor}`}>
+          <p className="text-xs text-muted-foreground mb-1">Type:</p>
+          <div className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs sm:text-sm font-medium border ${badgeColor}`}>
             {formattedType}
           </div>
         </div>
 
         <div>
-          <p className="text-sm text-muted-foreground mb-2">Description:</p>
-          <p className="text-sm leading-relaxed">{description}</p>
+          <p className="text-xs text-muted-foreground mb-1">Description:</p>
+          <p className="text-xs sm:text-sm leading-relaxed">{description}</p>
         </div>
 
         {reactionType === 'combustion' && (
-          <div className="mt-4 p-3 bg-orange-500/10 border border-orange-500/20 rounded-md">
-            <p className="text-sm text-orange-700 dark:text-orange-400">
-              ⚠️ Combustion reactions release energy in the form of heat and light. Handle with care!
+          <div className="mt-2 p-2 sm:p-3 bg-orange-500/10 border border-orange-500/20 rounded-md">
+            <p className="text-xs sm:text-sm text-orange-700 dark:text-orange-400">
+              ⚠️ Combustion reactions release energy. Handle with care!
             </p>
           </div>
         )}
