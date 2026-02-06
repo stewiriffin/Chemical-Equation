@@ -11,7 +11,7 @@ import { useDebounce } from "@/lib/hooks/useDebounce"
 import { useEquationContext } from "@/lib/context/EquationContext"
 import { validateEquationString } from "@/lib/chemistry/validator"
 import { parseEquation } from "@/lib/chemistry/parser"
-import { ValidationError } from "@/types/chemistry"
+import { ValidationError } from "@/lib/chemistry/validator"
 
 // Example equations to display - fewer on mobile
 const exampleEquations = [

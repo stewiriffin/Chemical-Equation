@@ -1,6 +1,6 @@
 import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
-import { BalancedResult, ReactionType, Step } from '@/types/chemistry'
+import { BalancedResult, Step } from '@/types/chemistry'
 
 // Extend Window interface for export result
 declare global {
