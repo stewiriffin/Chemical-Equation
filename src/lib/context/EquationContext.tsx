@@ -1,8 +1,9 @@
-import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react'
+import React, { createContext, useContext, useReducer, ReactNode, useEffect, useCallback } from 'react'
 import { BalancedResult, EquationHistoryItem } from '@/types/chemistry'
 import { loadHistory, saveHistory } from '@/lib/utils/localStorage'
 import { getEquationFromURL } from '@/lib/utils/urlSharing'
 import { ValidationError } from '@/lib/chemistry/validator'
+import { balanceEquation } from '@/lib/chemistry/balancer'
 
 // State interface
 interface EquationState {
@@ -145,6 +146,7 @@ function equationReducer(state: EquationState, action: EquationAction): Equation
 interface EquationContextType {
   state: EquationState
   dispatch: React.Dispatch<EquationAction>
+  balanceEquation: () => void
 }
 
 const EquationContext = createContext<EquationContextType | undefined>(undefined)
@@ -156,6 +158,38 @@ interface EquationProviderProps {
 
 export function EquationProvider({ children }: EquationProviderProps) {
   const [state, dispatch] = useReducer(equationReducer, initialState)
+
+  // Balance equation function
+  const balanceCurrentEquation = useCallback(() => {
+    const equation = state.currentEquation.trim()
+
+    if (!equation) {
+      dispatch({ type: 'SET_ERROR', payload: 'Please enter a chemical equation' })
+      return
+    }
+
+    dispatch({ type: 'SET_BALANCING', payload: true })
+    dispatch({ type: 'CLEAR_ERROR' })
+
+    try {
+      const result = balanceEquation(equation)
+      dispatch({ type: 'SET_RESULT', payload: result })
+
+      // Add to history
+      dispatch({
+        type: 'ADD_TO_HISTORY',
+        payload: {
+          id: `${Date.now()}-${Math.random()}`,
+          equation: result.original,
+          balanced: result.balanced,
+          timestamp: Date.now(),
+        },
+      })
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to balance equation'
+      dispatch({ type: 'SET_ERROR', payload: errorMessage })
+    }
+  }, [state.currentEquation])
 
   // Load from URL and localStorage on mount
   useEffect(() => {
@@ -172,6 +206,14 @@ export function EquationProvider({ children }: EquationProviderProps) {
     }
   }, [])
 
+  // Balance equation when loaded from URL
+  useEffect(() => {
+    const urlEquation = getEquationFromURL()
+    if (urlEquation && state.currentEquation === urlEquation && !state.balancedResult && !state.error) {
+      balanceCurrentEquation()
+    }
+  }, [state.currentEquation, state.balancedResult, state.error, balanceCurrentEquation])
+
   // Save history to localStorage whenever it changes
   useEffect(() => {
     if (state.history.length > 0) {
@@ -180,7 +222,7 @@ export function EquationProvider({ children }: EquationProviderProps) {
   }, [state.history])
 
   return (
-    <EquationContext.Provider value={{ state, dispatch }}>
+    <EquationContext.Provider value={{ state, dispatch, balanceEquation: balanceCurrentEquation }}>
       {children}
     </EquationContext.Provider>
   )

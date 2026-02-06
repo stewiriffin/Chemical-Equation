@@ -28,28 +28,27 @@ export function ReactionInfo({ original, reactionType }: ReactionInfoProps) {
   return (
     <Card className="transition-all hover:shadow-glow-sm h-full">
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-sm sm:text-base">
-          <Info className="h-4 w-4 sm:h-5 sm:w-5" />
-          <span className="hidden sm:inline">Reaction Information</span>
-          <span className="sm:hidden">Reaction</span>
+        <CardTitle className="flex items-center gap-2 text-sm">
+          <Info className="h-4 w-4" />
+          Reaction
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3 pt-0">
+      <CardContent className="space-y-2 pt-0">
         <div>
           <p className="text-xs text-muted-foreground mb-1">Type:</p>
-          <div className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs sm:text-sm font-medium border ${badgeColor}`}>
+          <div className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border ${badgeColor}`}>
             {formattedType}
           </div>
         </div>
 
         <div>
           <p className="text-xs text-muted-foreground mb-1">Description:</p>
-          <p className="text-xs sm:text-sm leading-relaxed">{description}</p>
+          <p className="text-xs leading-relaxed">{description}</p>
         </div>
 
         {reactionType === 'combustion' && (
-          <div className="mt-2 p-2 sm:p-3 bg-orange-500/10 border border-orange-500/20 rounded-md">
-            <p className="text-xs sm:text-sm text-orange-700 dark:text-orange-400">
+          <div className="mt-2 p-2 bg-orange-500/10 border border-orange-500/20 rounded-md">
+            <p className="text-xs text-orange-700 dark:text-orange-400">
               ⚠️ Combustion reactions release energy. Handle with care!
             </p>
           </div>

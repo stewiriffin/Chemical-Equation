@@ -55,17 +55,17 @@ export function ShareButton({
       variant={variant}
       size={size}
       onClick={handleShare}
-      className="gap-2"
+      className="gap-1"
     >
       {copied ? (
         <>
           <Check className="h-4 w-4" />
-          Copied!
+          <span className="hidden sm:inline">Copied!</span>
         </>
       ) : (
         <>
           <Share2 className="h-4 w-4" />
-          Share
+          <span className="hidden sm:inline">Share</span>
         </>
       )}
     </Button>

@@ -33,44 +33,41 @@ export function Header({ onShowShortcuts }: HeaderProps = {}) {
     <motion.header
       initial={{ y: -100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ duration: 0.5 }}
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      transition={{ duration: 0.4 }}
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
     >
-      <div className="container max-w-7xl mx-auto flex h-14 sm:h-16 items-center justify-between px-2 sm:px-4">
+      <div className="flex h-14 items-center justify-between px-2 sm:px-4 max-w-screen-xl mx-auto">
         {/* Logo and Title */}
-        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+        <div className="flex items-center gap-2 min-w-0">
           <motion.div
             initial={{ rotate: 0 }}
             animate={{ rotate: 360 }}
             transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
           >
-            <Beaker className="h-6 w-6 sm:h-8 sm:w-8 text-primary flex-shrink-0" />
+            <Beaker className="h-6 w-6 text-primary flex-shrink-0" />
           </motion.div>
           <div className="min-w-0">
-            <h1 className="text-sm sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent truncate">
-              <span className="hidden xs:block">Chemical Equation Balancer</span>
-              <span className="xs:hidden">Equation Balancer</span>
+            <h1 className="text-base sm:text-xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent truncate">
+              <span className="hidden xs:block">Chemical Balancer</span>
+              <span className="xs:hidden">Balancer</span>
             </h1>
-            <p className="text-[10px] sm:text-xs text-muted-foreground hidden sm:block truncate">
-              Balance any chemical equation
-            </p>
           </div>
         </div>
 
         {/* Dark Mode Toggle and Shortcuts */}
-        <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
+        <div className="flex items-center gap-1 flex-shrink-0">
           {onShowShortcuts && (
             <Button
               variant="ghost"
               size="icon"
               onClick={onShowShortcuts}
               title="Keyboard shortcuts (Ctrl+/)"
-              className="h-8 w-8 sm:h-9 sm:w-9"
+              className="h-9 w-9"
             >
               <Keyboard className="h-4 w-4" />
             </Button>
           )}
-          <Label htmlFor="dark-mode" className="cursor-pointer flex items-center gap-2">
+          <Label htmlFor="dark-mode" className="cursor-pointer flex items-center gap-2 relative">
             <Sun className="h-4 w-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-4 w-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="sr-only">Toggle dark mode</span>

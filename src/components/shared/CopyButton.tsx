@@ -1,39 +1,24 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Check, Copy } from "lucide-react"
-import { toast } from "sonner"
+import { Copy, Check } from "lucide-react"
 
 interface CopyButtonProps {
   text: string
   label?: string
-  variant?: "default" | "outline" | "ghost"
   size?: "default" | "sm" | "lg" | "icon"
+  variant?: "default" | "outline" | "ghost" | "link"
 }
 
-export function CopyButton({
-  text,
-  label = "Copy",
-  variant = "outline",
-  size = "sm",
-}: CopyButtonProps) {
+export function CopyButton({ text, label = "Copy", size = "sm", variant = "ghost" }: CopyButtonProps) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = async () => {
     try {
       await navigator.clipboard.writeText(text)
       setCopied(true)
-      toast.success("Copied to clipboard!", {
-        description: text.length > 50 ? `${text.substring(0, 50)}...` : text,
-      })
-
-      // Reset copied state after 2 seconds
-      setTimeout(() => {
-        setCopied(false)
-      }, 2000)
-    } catch (error) {
-      toast.error("Failed to copy", {
-        description: "Could not copy to clipboard",
-      })
+      setTimeout(() => setCopied(false), 2000)
+    } catch (err) {
+      console.error("Failed to copy:", err)
     }
   }
 
@@ -42,18 +27,16 @@ export function CopyButton({
       variant={variant}
       size={size}
       onClick={handleCopy}
-      className="gap-2"
+      className="h-8 px-2"
+      title="Copy to clipboard"
     >
       {copied ? (
-        <>
-          <Check className="h-4 w-4" />
-          Copied!
-        </>
+        <Check className="h-4 w-4 text-green-500" />
       ) : (
-        <>
-          <Copy className="h-4 w-4" />
-          {label}
-        </>
+        <Copy className="h-4 w-4" />
+      )}
+      {label && size !== "icon" && (
+        <span className="ml-1 hidden sm:inline">{label}</span>
       )}
     </Button>
   )

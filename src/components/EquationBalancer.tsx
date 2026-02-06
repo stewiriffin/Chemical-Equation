@@ -23,7 +23,7 @@ export default function EquationBalancer() {
   // Detect mobile viewport
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
+      setIsMobile(window.innerWidth < 640)
     }
     checkMobile()
     window.addEventListener('resize', checkMobile)
@@ -54,7 +54,7 @@ export default function EquationBalancer() {
 
       {/* Keyboard Shortcuts Help Dialog */}
       <Dialog open={showShortcuts} onOpenChange={setShowShortcuts}>
-        <DialogContent className="max-w-[90vw]">
+        <DialogContent className="w-[95vw] max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2 text-lg">
               <Keyboard className="h-5 w-5" />
@@ -65,7 +65,7 @@ export default function EquationBalancer() {
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm">
+            <div className="grid grid-cols-1 gap-2 text-sm">
               <div className="flex items-center gap-2">
                 <kbd className="px-2 py-1 bg-muted rounded border text-xs font-mono">Ctrl+Enter</kbd>
                 <span className="text-muted-foreground">Balance equation</span>
@@ -87,48 +87,33 @@ export default function EquationBalancer() {
         </DialogContent>
       </Dialog>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 py-4 sm:py-6 px-3 sm:px-4">
+      <div className="min-h-[calc(100vh-3.5rem)] bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800 pb-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="container max-w-7xl mx-auto"
+          transition={{ duration: 0.4 }}
+          className="h-full"
         >
           {/* Mobile: stacked layout | Desktop: side-by-side */}
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 lg:gap-6">
-            {/* Left Column - Input Section (40%) */}
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="lg:col-span-2 space-y-4 lg:space-y-6"
-            >
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4 lg:gap-6 px-2 sm:px-4 max-w-screen-xl mx-auto">
+            {/* Left Column - Input Section */}
+            <div className="order-1 md:order-1 lg:col-span-2 space-y-3 md:space-y-4">
               <EquationInput />
-              {/* Hide history on very small screens, show on md+ */}
-              <div className="hidden sm:block">
+              {/* Hide history on mobile, show on md+ */}
+              <div className="hidden md:block">
                 <EquationHistory />
               </div>
-            </motion.div>
+            </div>
 
-            {/* Right Column - Results Section (60%) */}
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-              className="lg:col-span-3"
-            >
+            {/* Right Column - Results Section */}
+            <div className="order-2 md:order-2 lg:col-span-3">
               <EquationDisplay />
-            </motion.div>
+            </div>
 
             {/* Mobile-only History Section */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="sm:hidden"
-            >
+            <div className="order-3 md:hidden">
               <EquationHistory />
-            </motion.div>
+            </div>
           </div>
         </motion.div>
       </div>

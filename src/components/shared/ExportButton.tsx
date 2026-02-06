@@ -81,12 +81,13 @@ export function ExportButton({ result, elementId = "equation-export-container" }
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="sm" disabled={isExporting} className="gap-2">
+        <Button variant="outline" size="sm" disabled={isExporting} className="gap-1">
           <Download className="h-4 w-4" />
-          {isExporting ? "Exporting..." : "Export"}
+          <span className="hidden sm:inline">{isExporting ? "Exporting..." : "Export"}</span>
+          <span className="sm:hidden">{isExporting ? "..." : "Exp"}</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56">
+      <DropdownMenuContent align="end" className="w-52">
         <DropdownMenuLabel>Download As</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={() => handleExport("png")} className="gap-2">

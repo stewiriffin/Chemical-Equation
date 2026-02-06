@@ -11,7 +11,7 @@ import { useDebounce } from "@/lib/hooks/useDebounce"
 import { useEquationContext } from "@/lib/context/EquationContext"
 import { validateEquationString } from "@/lib/chemistry/validator"
 import { parseEquation } from "@/lib/chemistry/parser"
-import { ValidationError } from "@/lib/chemistry/validator"
+import { ValidationError } from "@/types/chemistry"
 
 // Example equations to display - fewer on mobile
 const exampleEquations = [
@@ -20,9 +20,6 @@ const exampleEquations = [
   "Fe + O2 → Fe2O3",
   "N2 + H2 → NH3",
   "C3H8 + O2 → CO2 + H2O",
-  "Al + O2 → Al2O3",
-  "NaOH + H2SO4 → Na2SO4 + H2O",
-  "Ca(OH)2 + HCl → CaCl2 + H2O"
 ]
 
 export function EquationInput() {
@@ -108,12 +105,12 @@ export function EquationInput() {
   return (
     <Card className="transition-all hover:shadow-glow-sm">
       <CardHeader className="pb-3">
-        <CardTitle className="text-lg sm:text-xl">Enter Equation</CardTitle>
-        <CardDescription className="text-sm">
+        <CardTitle className="text-base">Enter Equation</CardTitle>
+        <CardDescription className="text-xs">
           Type: reactants → products
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-3 sm:space-y-4">
+      <CardContent className="space-y-3">
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="equation" className="text-sm">Chemical Equation</Label>
@@ -126,7 +123,7 @@ export function EquationInput() {
             onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setEquation(e.target.value)}
             onKeyPress={handleKeyPress}
             placeholder="e.g., H2 + O2 → H2O"
-            className="font-mono min-h-[80px] sm:min-h-[100px] text-sm sm:text-base"
+            className="font-mono text-sm min-h-[80px]"
             aria-describedby="equation-error"
           />
           
@@ -134,7 +131,7 @@ export function EquationInput() {
           {mainError && (
             <div 
               role="alert"
-              className="flex items-start gap-2 p-2 sm:p-3 bg-destructive/10 border border-destructive/20 rounded-md"
+              className="flex items-start gap-2 p-2 bg-destructive/10 border border-destructive/20 rounded-md"
             >
               <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
               <div className="flex-1 min-w-0">
@@ -153,7 +150,7 @@ export function EquationInput() {
                 <div 
                   key={index}
                   role="status"
-                  className="flex items-start gap-2 p-2 sm:p-3 bg-amber-500/10 border border-amber-500/20 rounded-md"
+                  className="flex items-start gap-2 p-2 bg-amber-500/10 border border-amber-500/20 rounded-md"
                 >
                   <AlertTriangle className="h-4 w-4 text-amber-500 mt-0.5 shrink-0" />
                   <div className="flex-1 min-w-0">
@@ -169,7 +166,7 @@ export function EquationInput() {
 
           {/* API error message */}
           {error && !mainError && (
-            <div className="flex items-start gap-2 p-2 sm:p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+            <div className="flex items-start gap-2 p-2 bg-destructive/10 border border-destructive/20 rounded-md">
               <AlertCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
               <p className="text-sm text-destructive break-words">{error}</p>
             </div>
@@ -180,7 +177,6 @@ export function EquationInput() {
           onClick={balance}
           disabled={!equation.trim() || isBalancing || (state.validationErrors.filter((e: ValidationError) => e.type === 'error').length > 0)}
           className="w-full"
-          size="default"
         >
           {isBalancing ? (
             <span className="flex items-center gap-2">
@@ -189,14 +185,14 @@ export function EquationInput() {
           ) : "Balance Equation"}
         </Button>
 
-        <Separator className="my-3 sm:my-6" />
+        <Separator className="my-3" />
 
-        {/* Example Equations - hidden on very small screens */}
+        {/* Example Equations */}
         <div className="space-y-2">
-          <h3 className="text-xs sm:text-sm font-semibold uppercase text-muted-foreground">
+          <h3 className="text-xs font-semibold uppercase text-muted-foreground">
             Examples
           </h3>
-          <div className="grid grid-cols-1 gap-1 max-h-32 sm:max-h-48 overflow-y-auto pr-1">
+          <div className="grid grid-cols-1 gap-1 max-h-32 overflow-y-auto pr-1">
             {exampleEquations.map((example, index) => (
               <Button
                 key={index}

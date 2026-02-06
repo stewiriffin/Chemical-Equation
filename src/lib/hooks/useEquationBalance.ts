@@ -1,13 +1,12 @@
 import { useCallback } from 'react'
 import { useEquationContext } from '@/lib/context/EquationContext'
-import { balanceEquation } from '@/lib/chemistry/balancer'
 
 /**
  * Custom hook for balancing chemical equations
  * Handles the balancing logic and state updates
  */
 export function useEquationBalance() {
-  const { state, dispatch } = useEquationContext()
+  const { state, dispatch, balanceEquation } = useEquationContext()
 
   const balance = useCallback(() => {
     const equation = state.currentEquation.trim()
@@ -21,25 +20,13 @@ export function useEquationBalance() {
     dispatch({ type: 'CLEAR_ERROR' })
 
     try {
-      // Use the real balancing algorithm
-      const result = balanceEquation(equation)
-      dispatch({ type: 'SET_RESULT', payload: result })
-
-      // Add to history
-      dispatch({
-        type: 'ADD_TO_HISTORY',
-        payload: {
-          id: `${Date.now()}-${Math.random()}`,
-          equation: result.original,
-          balanced: result.balanced,
-          timestamp: Date.now(),
-        },
-      })
+      // Use the balancing function from context
+      balanceEquation()
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Failed to balance equation'
       dispatch({ type: 'SET_ERROR', payload: errorMessage })
     }
-  }, [state.currentEquation, dispatch])
+  }, [state.currentEquation, dispatch, balanceEquation])
 
   const setEquation = useCallback(
     (equation: string) => {
