@@ -19,10 +19,6 @@ export function SuccessAnimation({ trigger, onComplete }: SuccessAnimationProps)
 
       const colors = ['#1E90FF', '#FF0D0D', '#3DFF00', '#FFFF30', '#AB5CF2']
 
-      const randomInRange = (min: number, max: number) => {
-        return Math.random() * (max - min) + min
-      }
-
       const interval = setInterval(() => {
         const timeLeft = animationEnd - Date.now()
 
